@@ -13,7 +13,7 @@ function [pval, m] = circ_otest(alpha, sz, w)
 %     alpha	sample of angles in radians
 %     [sz   step size for evaluating distribution, default 1 degree
 %     [w		number of incidences in case of binned angle data]
-
+%
 %   Output:
 %     pval  p-value
 %     m     minimum number of samples falling in one half of the circle
@@ -59,7 +59,13 @@ for i=1:length(dg)
 end
 m = min(min([m1;m2]));
 
-% exact formula by Hodges (1955)
-% revision (for numerical stability) of pval = 2^(1-n) * (n-2*m) * nchoosek(n,m);
-pval = exp((1-n)*log(2) + log(n-2*m) + gammaln(n+1) - gammaln(m+1) - gammaln(n-m+1));
+if n > 50
+  % approximation by Ajne (1968)
+  A = pi*sqrt(n) / 2 / (n-2*m);
+  pval = sqrt(2*pi) / A * exp(-pi^2/8/A^2);
+else
+  % exact formula by Hodges (1955)
+  % pval = 2^(1-n) * (n-2*m) * nchoosek(n,m);  % revised below for numerical stability
+  pval = exp((1-n)*log(2) + log(n-2*m) + gammaln(n+1) - gammaln(m+1) - gammaln(n-m+1));
+end
 end
